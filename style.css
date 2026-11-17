@@ -1,0 +1,46 @@
+:root{font-family:system-ui,"Hiragino Sans","Yu Gothic",sans-serif;color:#203330;background:#f7f4ed;line-height:1.55;font-synthesis:none}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+main{width:min(100%,550px);padding:18px 16px 40px;margin:auto}
+header,.game-meta,.tools,.stats{display:flex;justify-content:space-between;align-items:center;gap:8px}
+header{margin-bottom:12px}
+header:empty{display:none}
+h1{font-size:clamp(1.6rem,7vw,2.45rem);line-height:1.2;margin:20px 0 14px}
+button,input,select{font:inherit}
+button,input,select{border:1px solid #b4c7bd;border-radius:12px;padding:10px 13px;min-height:44px}
+button{background:#edf4ed;color:inherit;font-weight:650;cursor:pointer}
+button:disabled{opacity:.52;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b96c33;outline-offset:2px}
+button.brand,.quiet{background:transparent;border-color:transparent;padding-inline:0}
+.primary{background:#15584d;color:#fff;border:none;width:100%;padding:13px}
+#welcome{text-align:center;padding:12vh 0}
+#language-start{display:grid;gap:10px;margin:26px auto;max-width:270px}
+form{display:grid;gap:9px;background:white;border:1px solid #deded2;padding:16px;border-radius:18px;margin:0 0 14px}
+form label{font-weight:650;margin-top:4px}
+form p{margin:3px 0}
+a{color:#15584d}
+progress{width:100%;accent-color:#15584d}
+.prompt{text-align:center;font-size:clamp(2rem,9vw,3rem);font-weight:750;overflow-wrap:anywhere;margin:10px 0 0}
+.meaning{text-align:center;margin:0 0 12px}
+.meaning:empty{display:none}
+.board{scroll-margin-top:10px;max-width:410px;margin:16px auto 24px}
+.board-label,.note{font-size:.85rem;color:#415b54}
+.board-label,.feedback{margin:5px 0}
+.paper{position:relative;aspect-ratio:1;border:1px solid #a6c2b6;border-radius:18px;overflow:hidden;background:linear-gradient(transparent calc(50% - .5px),#d8e4df 50%,transparent calc(50% + .5px)),linear-gradient(90deg,transparent calc(50% - .5px),#d8e4df 50%,transparent calc(50% + .5px)),#fff;container-type:inline-size}
+.guide{position:absolute;inset:0;display:grid;place-items:center;font:73.33cqw/1 "Hiragino Sans","Yu Gothic",Meiryo,"Noto Sans CJK JP",sans-serif;color:#c6d6cd;pointer-events:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.tools{margin-top:8px}
+.feedback{min-height:1.55em}
+.feedback[data-state=correct]{color:#15584d;font-weight:750}
+.printed{text-align:center;font-size:1.8rem;color:#415b54}
+#certificate{text-align:center;padding:24px 10px;background:linear-gradient(150deg,#56278b,#34216f 55%,#155f86);border:5px double #efc978;border-radius:18px;color:#fff4da;overflow-wrap:anywhere;margin-bottom:16px}
+.stars,#cert-division,.stats strong{color:#ffdf8a}
+.stars{font-size:1.7rem}
+#cert-name{font-size:clamp(1.45rem,7vw,2.4rem);margin:12px 0}
+.stats{align-items:start;margin:20px 0}
+.stats div{flex:1;min-width:0}
+.stats strong,.stats span{display:block}
+.stats strong{font-size:clamp(1rem,5vw,1.65rem)}
+.stats span{font-size:.76rem}
+#saved-image{display:block;width:100%;margin-top:12px}

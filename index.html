@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f4ed">
+<title>みんなの漢字ポケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="lessons.js" defer></script>
+<script src="i18n.js" defer></script>
+<script src="app.js" defer></script>
+<script src="certificate.js" defer></script>
+</head>
+<body>
+<main>
+<header><button id="home" class="brand" data-t="brand" hidden></button><select id="language" aria-label="Language" hidden><option value="ja">日本語</option><option value="th">ไทย</option><option value="en">English</option></select></header>
+<section id="welcome">
+ <h1>みんなの漢字ポケット</h1><p>言語を選ぶ ／ เลือกภาษา ／ Choose a language</p>
+ <div id="language-start"><button data-lang="ja" lang="ja">日本語</button><button data-lang="th" lang="th">ภาษาไทย</button><button data-lang="en" lang="en">English</button></div>
+</section>
+<section id="menu" hidden>
+ <h1 data-t="title"></h1>
+ <form id="name-form">
+  <label for="student-name" data-t="name"></label><input id="student-name" maxlength="50" required autocomplete="name" dir="auto">
+  <label for="unit" data-t="chooseUnit"></label><select id="unit"></select>
+  <label for="mode" data-t="chooseMode"></label><select id="mode"></select>
+  <p id="count" aria-live="polite"></p>
+  <button class="primary" data-t="start"></button>
+ </form>
+ <a href="https://nihongokyoshi-net.com/minnano-nihongo-kanji/" data-t="source"></a>
+</section>
+<section id="game" hidden>
+ <div class="game-meta"><button id="back" class="quiet" data-t="back"></button><output id="counter"></output></div>
+ <progress id="progress"></progress>
+ <div id="prompt" class="prompt" lang="ja"></div><p id="meaning" class="meaning"></p>
+ <div id="boards"></div>
+ <button id="next" class="primary" hidden></button>
+ <p data-t="judging" class="note"></p>
+</section>
+<section id="result" hidden>
+ <article id="certificate">
+  <div class="stars" aria-hidden="true">✦ ★ ✧ ★ ✦</div>
+  <p data-t="brand"></p><h1 data-t="certTitle"></h1>
+  <strong id="cert-division"></strong>
+  <p data-t="presented"></p><h2 id="cert-name" dir="auto"></h2>
+  <p data-t="certBody"></p>
+  <div class="stats">
+   <div><strong id="cert-count"></strong><span data-t="clearedLabel"></span></div>
+   <div><strong id="cert-hints"></strong><span data-t="hintsLabel"></span></div>
+   <div><strong id="cert-average"></strong><span id="cert-average-label" data-t="average"></span></div>
+  </div>
+  <p><span data-t="dateLabel"></span> <time id="cert-date"></time></p><small id="cert-code"></small>
+ </article>
+ <button id="save-certificate" class="primary" data-t="save"></button>
+ <p id="save-status" role="status"></p>
+ <details id="saved-image-panel" hidden><summary data-t="preview"></summary><img id="saved-image" alt=""></details>
+ <button id="again" class="quiet" data-t="back"></button>
+</section>
+</main>
+</body>
+</html>
