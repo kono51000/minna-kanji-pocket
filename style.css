@@ -44,3 +44,9 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .stats strong{font-size:clamp(1rem,5vw,1.65rem)}
 .stats span{font-size:.76rem}
 #saved-image{display:block;width:100%;margin-top:12px}
+
+.joined-sheet{max-width:410px;margin:16px auto;border:1px solid #a6c2b6;border-radius:16px;overflow:hidden}
+.joined-sheet .paper{border:0;border-radius:0}
+.joined-sheet .paper+.paper,.joined-sheet .printed+.paper,.joined-sheet .paper+.printed{border-top:1px solid #a6c2b6}
+.joined-sheet .printed{margin:0;padding:12px;background:#fff}
+.board-controls .board{margin:12px auto;padding-bottom:12px;border-bottom:1px solid #d8e4df}
