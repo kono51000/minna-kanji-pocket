@@ -27,13 +27,15 @@
   <p id="count" aria-live="polite"></p>
   <button class="primary" data-t="start"></button>
  </form>
- <a href="https://nihongokyoshi-net.com/minnano-nihongo-kanji/" data-t="source"></a>
+
 </section>
 <section id="game" hidden>
  <div class="game-meta"><button id="back" class="quiet" data-t="back"></button><output id="counter"></output></div>
  <progress id="progress"></progress>
  <div id="prompt" class="prompt" lang="ja"></div><p id="meaning" class="meaning"></p>
  <div id="boards"></div>
+ <div class="tools"><button id="clear-all" data-t="clear"></button><button id="guide-all" aria-pressed="false" data-t="guide"></button></div>
+ <button id="check-all" class="primary" data-t="checkAll"></button>
  <button id="next" class="primary" hidden></button>
  <p data-t="judging" class="note"></p>
 </section>
