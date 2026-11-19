@@ -20,10 +20,9 @@ function options(select, items) {
 
 function questions(unit, mode) {
  const selection = unit === 'all' ? units : [units[Number(unit)]];
- if (mode === 'words') {
-  return selection.flatMap(([, words]) => words.map(([answer,prompt,en,th]) => ({answer,prompt,en,th})));
- }
- return [...new Set(selection.flatMap(([kanji]) => [...kanji]))].map(answer => ({answer,prompt:answer}));
+ return selection.flatMap(([, words]) =>
+  words.map(([answer,prompt,en,th]) => ({answer,prompt,en,th}))
+ );
 }
 
 function updateCount() {
@@ -38,7 +37,7 @@ function applyLanguage() {
  $('language').value = lang;
  for (const element of document.querySelectorAll('[data-t]')) element.textContent = t(element.dataset.t);
  options($('unit'), units.map((_, i) => [String(i),unitName(String(i))]).concat([['all',unitName('all')]]));
- options($('mode'), ['single','words','random'].map(mode => [mode,t(mode)]));
+ options($('mode'), ['words','random'].map(mode => [mode,t(mode)]));
  updateCount();
  if (session && !$('game').hidden) refreshQuestion();
  if (completion && !$('result').hidden) renderCertificate();
@@ -97,6 +96,7 @@ $('name-form').onsubmit = event => {
 };
 
 function loadQuestion() {
+ session.boards.forEach(board => board.hideGuide());
  const question = session.queue[session.index];
  session.boards = [];
  for (const char of question.answer) {
@@ -110,7 +110,15 @@ function loadQuestion() {
    session.boards.push({element:text,printed:true,hideGuide(){}});
   }
  }
- $('boards').replaceChildren(...session.boards.map(board => board.element));
+ const sheet = document.createElement('div');
+ sheet.className = 'joined-sheet';
+ for (const board of session.boards) {
+  sheet.append(board.printed ? board.element : board.element.querySelector('.paper'));
+ }
+ const controls = document.createElement('div');
+ controls.className = 'board-controls';
+ controls.append(...session.boards.filter(board => !board.printed).map(board => board.element));
+ $('boards').replaceChildren(sheet, controls);
  refreshQuestion();
 }
 
@@ -123,9 +131,38 @@ function refreshQuestion() {
  const passed = session.boards.every(board => board.printed || board.passed);
  $('progress').value = session.index + Number(passed);
  $('next').hidden = !passed;
+ $('check-all').hidden = passed;
  $('next').textContent = t(session.index + 1 === session.queue.length ? 'finish' : 'next');
  for (const board of session.boards) board.translate?.();
+ updateGuideButton();
 }
+
+function updateGuideButton() {
+ const visible = Boolean(session?.boards.some(board => board.isGuideVisible?.()));
+ $('guide-all').textContent = t(visible ? 'hide' : 'guide');
+ $('guide-all').setAttribute('aria-pressed', String(visible));
+}
+$('guide-all').onclick = () => {
+ if (!session) return;
+ const visible = session.boards.some(board => board.isGuideVisible?.());
+ for (const board of session.boards) {
+  if (visible) board.hideGuide();
+  else board.showGuide?.();
+ }
+ updateGuideButton();
+};
+$('clear-all').onclick = () => {
+ if (!session || session.boards.some(board => board.isDrawing?.())) return;
+ session.boards.forEach(board => board.clearWriting?.());
+ refreshQuestion();
+};
+
+$('check-all').onclick = () => {
+ if (!session || session.boards.some(board => board.isDrawing?.())) return;
+ for (const board of session.boards) board.judge?.();
+ refreshQuestion();
+ if (!$('next').hidden) $('next').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
 
 $('next').onclick = () => {
  if (!session || $('next').hidden) return;
@@ -156,13 +193,10 @@ function createBoard(char,index) {
  element.className = 'board';
  element.innerHTML = `<p class="board-label"></p><div class="paper">
   <span class="guide" lang="ja" aria-hidden="true" hidden></span><canvas width="600" height="600"></canvas>
- </div><div class="tools"><button class="clear"></button><button class="hint" aria-pressed="false"></button></div>
- <p class="feedback" role="status"></p><button class="primary check"></button>`;
+ </div>
+ <p class="feedback" role="status"></p>`;
  const canvas = element.querySelector('canvas');
  const guide = element.querySelector('.guide');
- const hint = element.querySelector('.hint');
- const clear = element.querySelector('.clear');
- const check = element.querySelector('.check');
  const feedback = element.querySelector('.feedback');
  const ctx = canvas.getContext('2d');
  const strokes = [];
@@ -173,9 +207,6 @@ function createBoard(char,index) {
   const label = t('box',{n:index + 1});
   element.querySelector('.board-label').textContent = label;
   canvas.setAttribute('aria-label', label);
-  hint.textContent = t(guide.hidden ? 'guide' : 'hide');
-  clear.textContent = t('clear');
-  check.textContent = t('check');
   feedback.textContent = message ? t(message) : '';
   if (match !== null) {
    feedback.textContent += ' · ' + t('match') + ' ' + percent(Math.floor(match * 100) / 100);
@@ -185,18 +216,15 @@ function createBoard(char,index) {
  function hideGuide() {
   clearTimeout(timer);
   guide.hidden = true;
-  hint.setAttribute('aria-pressed','false');
-  hint.textContent = t('guide');
+  updateGuideButton();
  }
- const board = {element,passed:false,translate,hideGuide};
- hint.onclick = () => {
-  if (!guide.hidden) { hideGuide(); return; }
+ const board = {element,passed:false,translate,hideGuide,showGuide,clearWriting,judge, isGuideVisible: () => !guide.hidden, isDrawing: () => pointer !== null};
+ function showGuide() {
+  clearTimeout(timer);
   if (!usedHint) { session.hints++; usedHint = true; }
   guide.hidden = false;
-  hint.setAttribute('aria-pressed','true');
-  hint.textContent = t('hide');
   timer = setTimeout(hideGuide,GUIDE_MS);
- };
+ }
  const point = event => {
   const bounds = canvas.getBoundingClientRect();
   return [(event.clientX-bounds.left)*600/bounds.width,(event.clientY-bounds.top)*600/bounds.height];
@@ -229,23 +257,27 @@ function createBoard(char,index) {
  canvas.onpointerup = canvas.onpointercancel = canvas.onlostpointercapture = event => {
   if (event.pointerId !== pointer) return;
   pointer = null;
-  check.disabled = false;
  };
- clear.onclick = () => {
+ function clearWriting() {
   if (pointer !== null) return;
+  if (board.passed) {
+   session.score -= match;
+   session.characters--;
+   board.passed = false;
+  }
+  hideGuide();
   strokes.length = 0;
   match = null;
   message = '';
-  check.disabled = true;
+  feedback.dataset.state = '';
   draw();
   translate();
  };
- check.disabled = true;
- check.onclick = () => {
+ function judge() {
   if (board.passed || pointer !== null) return;
   const points = strokes.flat();
   const xs = points.map(([x])=>x), ys = points.map(([,y])=>y);
-  if (Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)) < 45) {
+  if (!points.length || Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)) < 45) {
    match = null;
    message = 'bigger';
   } else {
@@ -255,13 +287,10 @@ function createBoard(char,index) {
   }
   feedback.dataset.state = message;
   if (message === 'correct') {
-   board.passed = check.disabled = hint.disabled = clear.disabled = true;
+   board.passed = true;
    session.score += match;
    session.characters++;
    hideGuide();
-   refreshQuestion();
-   const following = session.boards.slice(index + 1).find(item => !item.printed && !item.passed);
-   (following?.element ?? (!$('next').hidden ? $('next') : element)).scrollIntoView({behavior:'smooth',block:'start'});
   }
   translate();
  };
